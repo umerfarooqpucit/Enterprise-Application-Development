@@ -1,0 +1,414 @@
+﻿@model Drive.Entities.UserDTO
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            showFolders();
+            showFiles();
+            $("#btnSearch").click(function () {
+
+                $("#folderContainer").html("");
+                var fileContainer = $("#fileContainer");
+                fileContainer.html("");
+                var fName = $("#txtSearch").val();
+                var user = $("#userId").val();
+                var basepath = '@Url.Content("~")';
+                var settings = {
+                    type: "GET",
+                    dataType: "json",
+                    url: basepath + "api/FileData/Search",
+                    data: { "fName": fName, "userId": user },
+                    success: function (resp) {
+                        
+                        if (resp.length == 0) {
+                            var heading = $("<div class='col-lg-12'>").html("<h4> Nothing matched your search</h4>");
+                            fileContainer.append(heading);
+                        }
+                        else {
+                            var heading = $("<div class='col-lg-12'>").html("<h4> Search Results</h4>");
+                            fileContainer.append(heading);
+                        }
+                        for (var i = 0; i < resp.length; i++) {
+                            debugger;
+                            var fiDiv = $("<div class='col-lg-3 fiDiv download' >");
+                            if (resp[i].FileExt == ".pdf") {
+                                fiDiv.html("<div class='fiHov'><div class='col-lg-12 fileIconDiv '><center><span class='glyphicon glyphicon-file'></span><h5 style='font-size:17px'>PDF</h5></center></div><div class='col-lg-12 fileNameDiv'><center>" + resp[i].Name + "</center></div></div>");
+                            } else {
+                                fiDiv.html("<div class='fiHov'><div class='col-lg-12 fileIconDiv '><center><img src='http://localhost:9386/api/FileData/GenerateThumbnail?uniqueName=" + resp[i].UniqueName + "' style='width:220px;height:140px' ></center></div><div class='col-lg-12 fileNameDiv'><center>" + resp[i].Name + "</center></div></div>");
+                            }
+
+                            fiDiv.attr({ "pid": resp[i].ID, "uname": resp[i].UniqueName });
+                            fileContainer.append(fiDiv);
+                        }
+                        //alert("Folder Created Successfully");
+                    },
+                    error: function (e) {
+                        alert("error");
+                    }
+                };
+
+                $.ajax(settings);
+            });
+            $("#fileContainer").on("dblclick", ".download", function () {
+                debugger;
+                var uniqueName = $(this).attr("uname");
+                var url = "http://localhost:9386/api/FileData/DownloadFile?uniqueName=" + uniqueName;
+                window.open(url);
+            });
+            $("#btnMeta").click( function () {
+                debugger;
+                var parent = $("#parentId").val();
+                var user = $("#userId").val();
+                var url = "http://localhost:9386/api/FolderData/DownloadMeta?parent=" + parent+"&user="+user;
+                window.open(url);
+            });
+            $("#file1").change(function () {
+                $("#txtError").text("");
+            });
+            $('#btnDelete').click(function () {
+                debugger;
+                var basepath = '@Url.Content("~")';
+                var uri = "";
+                var id = $(this).attr("pid");
+                if ($(this).attr("target")=="folder") {
+                    uri = basepath + "api/FolderData/DeleteFolder";
+                } else {
+                    uri = basepath + "api/FileData/DeleteFile";
+                }
+                if (confirm("Are you Sure?")) {
+                    $(this).hide();
+                    var ajaxRequest = $.ajax({
+                        type: "POST",
+                        url: uri,
+                        datatype: "json",
+                        data: { "id": id },
+                        success: function (resp) {
+                            alert('Deleted Successfully');
+                            
+                            $("#folderContainer").html("");
+                            $("#fileContainer").html("");
+                            debugger;
+                            showFolders();
+                            showFiles();
+                        },
+                        error: function (resp) {
+                            alert("Could not be deleted for some reason.");
+                        }
+                    });
+                }
+                else {
+                    $("[pid=" + id + "]").find(".selected").removeClass("selected");
+                    $(this).hide();
+                }
+            })
+            $("#btnUpload").click(function () {
+                var data = new FormData();
+                var files = $("#file1").get(0).files;
+                debugger;   
+                if (files.length > 0) {
+                    if (files[0].size > 8388608) {
+                        $("#txtError").text("File size can't be larger than 8MB");
+                    }
+                    else {
+                        $("#btnCloseModal1").click();
+                        $("#uploadGif").show();
+                        data.append("UploadedFile", files[0]);
+                        data.append("userId", $("#userId").val());
+                        data.append("parentId", $("#parentId").val());
+                        var basepath = '@Url.Content("~")';
+                        var ajaxRequest = $.ajax({
+                            type: "POST",
+                            url: basepath + "api/FileData/UploadFile",
+                            contentType: false,
+                            processData: false,
+                            data: data,
+                            success: function (resp) {
+                                $("#uploadGif").hide();
+                                alert('File uploaded Successfully');
+                                $("#file1").val(null);
+                                $("#txtError").text("");
+                                if ($("#fileContainer").html()=="") {
+                                    var heading = $("<div class='col-lg-12'>").html("<h4> Files</h4>");
+                                    $("#fileContainer").append(heading);
+                                }
+                                var fiDiv = $("<div class='col-lg-3 fiDiv download' >");
+                                if (resp.Ext == ".pdf") {
+                                    fiDiv.html("<div class='fiHov'><div class='col-lg-12 fileIconDiv '><center><span class='glyphicon glyphicon-file'></span><h5 style='font-size:17px'>PDF</h5></center></div><div class='col-lg-12 fileNameDiv'><center>" + resp.Name + "</center></div></div>");
+                                }
+                                else {
+                                    fiDiv.html("<div class='fiHov'><div class='col-lg-12 fileIconDiv '><center><img src='http://localhost:9386/api/FileData/GenerateThumbnail?uniqueName=" + resp.UniqueName + "' style='width:220px;height:140px' ></center></div><div class='col-lg-12 fileNameDiv'><center>" + resp.Name + "</center></div></div>");
+                                }                                
+                                //var fiDiv = $("<div class='col-lg-3 fiDiv download' >").html("<div class='fiHov'><div class='col-lg-12 fileIconDiv '><center><span class='glyphicon glyphicon-file'></span></center></div><div class='col-lg-12 fileNameDiv'><center>" + resp.Name + "</center></div></div>");
+                                fiDiv.attr({ "pid": resp.ID, "uname": resp.UniqueName });
+                                $("#fileContainer").append(fiDiv);
+                            }
+                        });
+                    }
+                }
+
+                else {
+                    $("#txtError").text("Please select a file first.");
+                }
+            });
+        });
+        function showFolders() {
+            var folderContainer = $("#folderContainer");
+            var parent = $("#parentId").val();
+            var user = $("#userId").val();
+            var basepath = '@Url.Content("~")';
+            var settings = {
+                type: "GET",
+                dataType: "json",
+                url: basepath + "api/FolderData/ShowAllFolders",
+                data: { "parentId": parent,"userId":user },
+                success: function (resp) {
+                    if (resp.length != 0) {
+                        var heading = $("<div class='col-lg-12'>").html("<h4> Folders</h4>");
+                        folderContainer.append(heading);
+                    }
+                    for (var i = 0; i < resp.length; i++) {
+                        var foDiv = $("<div class='col-lg-3 foDiv' >").html("<div class='col-lg-12 foIconNameDiv'><div class='col-lg-2 foIconDiv'><center><span class='glyphicon glyphicon-folder-close'></span></center></div><div class='col-lg-10 foNameDiv'>" + resp[i].Name + "</div></div></div>");
+                        foDiv.attr({ "pid": resp[i].ID });
+                        folderContainer.append(foDiv);
+                    }
+                    //alert("Folder Created Successfully");
+                },
+                error: function (e) {
+                    alert("error");
+                }
+            };
+
+            $.ajax(settings);
+        }
+        function showFiles() {
+
+            var fileContainer = $("#fileContainer");
+            var parent = $("#parentId").val();
+            var user = $("#userId").val();
+            var basepath = '@Url.Content("~")';
+            var settings = {
+                type: "GET",
+                dataType: "json",
+                url: basepath + "api/FileData/ShowAllFiles",
+                data: { "parentId": parent, "userId": user },
+                success: function (resp) {
+                    if (resp.length != 0) {
+                        var heading = $("<div class='col-lg-12'>").html("<h4> Files</h4>");
+                        fileContainer.append(heading);
+                    }
+                    for (var i = 0; i < resp.length; i++) {
+                        debugger;
+                        var fiDiv = $("<div class='col-lg-3 fiDiv download' >");
+                        if (resp[i].FileExt == ".pdf") {
+                            fiDiv.html("<div class='fiHov'><div class='col-lg-12 fileIconDiv '><center><span class='glyphicon glyphicon-file'></span><h5 style='font-size:17px'>PDF</h5></center></div><div class='col-lg-12 fileNameDiv'><center>" + resp[i].Name + "</center></div></div>");
+                        } else {
+                            fiDiv.html("<div class='fiHov'><div class='col-lg-12 fileIconDiv '><center><img src='http://localhost:9386/api/FileData/GenerateThumbnail?uniqueName=" + resp[i].UniqueName + "' style='width:220px;height:140px' ></center></div><div class='col-lg-12 fileNameDiv'><center>" + resp[i].Name + "</center></div></div>");
+                        }
+                        
+                        fiDiv.attr({ "pid": resp[i].ID, "uname": resp[i].UniqueName });
+                        fileContainer.append(fiDiv);
+                    }
+                    //alert("Folder Created Successfully");
+                },
+                error: function (e) {
+                    alert("error");
+                }
+            };
+
+            $.ajax(settings);
+            return false;
+        }
+        $(function () {
+            $("#folderContainer").on("dblclick", ".foDiv", function () {
+                debugger;
+                $("#btnDelete").hide();
+                $("#folderContainer").html("");
+                $("#fileContainer").html("");
+                var parent = $(this).attr("pid");
+                $("#parentId").val(parent);
+                showFolders();
+                showFiles();
+                var foName = $(this).find(".foNameDiv").text();
+                $(".pathDiv").append("<span class='folderName' id='"+parent+"' > / "+foName+" </span>");
+            });
+            
+        });
+        $(function () {
+            $(".main-body").on("click", ".foDiv,.fiDiv", function () {
+                debugger;
+                var clickedElement = $(this).find(".foIconNameDiv,.fiHov");
+                if (clickedElement.hasClass("selected")) {
+                    clickedElement.removeClass("selected");
+                    $("#btnDelete").hide();
+                }
+                else {
+                    $(".foIconNameDiv,.fiHov").removeClass("selected");
+                    clickedElement.addClass("selected");
+                    //clickedElement.css({ "background": "#E8F0FE", "color": "#1E6AD3" });
+
+                    $("#btnDelete").show();
+                    $("#btnDelete").attr("pid", $(this).attr("pid"));
+                    if ($(this).find(".fiHov").length) {
+                        $("#btnDelete").attr("target", "file");
+                    } else {
+                        $("#btnDelete").attr("target", "folder");
+                    }
+                }
+                //if (clickedElement.css("background") == "rgb(232, 240, 254)") {
+                //    clickedElement.css({ "background": "white", "color": "#333333" });
+                //}
+                
+            });
+        });
+        $(function () {
+            $(".pathDiv").on("click", ".folderName", function () {
+                debugger;
+                $("#folderContainer").html("");
+                $("#fileContainer").html("");
+                $("#btnDelete").hide();
+                var parent = $(this).attr("id");
+                $("#parentId").val(parent);
+                debugger;
+                $("#"+parent).nextAll('span').remove();
+                showFolders();
+                showFiles();
+            });
+        });
+        $(function () {
+            $("#btnCreate").click(function () {
+                debugger;
+                var folderName = $("#txtFolderName").val();
+                var userId = $("#userId").val();
+                var parent = $("#parentId").val();
+                if (folderName == "") {
+                    $("#txtError1").text("Folder Name can't be empty.");
+                }
+                else {
+                    $("#txtError1").text("");
+                    $("#btnCloseModal").click();
+                    $("#txtFolderName").val("");
+                    var d = { "foName": folderName, "createdBy": userId, "parentId": parent };
+                    var basepath = '@Url.Content("~")';
+                    var settings = {
+                        type: "POST",
+                        dataType: "json",
+                        url: basepath + "api/FolderData/CreateFolder",
+                        data: d,
+                        success: function (resp) {
+                            alert("Folder Created Successfully");
+                            if ($("#folderContainer").html() == "") {
+                                var heading = $("<div class='col-lg-12'>").html("<h4> Folders</h4>");
+                                $("#folderContainer").append(heading);
+                            }
+                            var foDiv = $("<div class='col-lg-3 foDiv' >").html("<div class='col-lg-12 foIconNameDiv'><div class='col-lg-2 foIconDiv'><center><span class='glyphicon glyphicon-folder-close'></span></center></div><div class='col-lg-10 foNameDiv'>" + folderName + "</div></div></div>");
+                            foDiv.attr({ "pid": resp});
+                            $("#folderContainer").append(foDiv);
+
+                        },
+                        error: function (e) {
+                            alert("error");
+                        }
+                    };
+
+                    $.ajax(settings);
+
+                    return false;
+                }
+            });
+        });
+    </script>
+}
+<div class="row">
+    <div class="col-lg-6">
+        <h3>Welcome @Model.Login</h3>
+    </div>
+    <input type="hidden" id="userId" value="@Model.ID"  />
+    <input type="hidden" id="parentId" value="0" />
+    <div style=" position: fixed; left: 650px; top: 270px; right: 680px; bottom: 290px; z-index: 100; display: none; " id="uploadGif">
+        <img style="height:100px;width:100px;" src="/UploadedFiles/uploading.gif" />
+        <h4 style="padding-left:8px" >Uploading...</h4>
+    </div>
+    
+    <div class="col-lg-6">
+        <div style="padding-top: 4px; margin-left: -10px">
+            <button type="button" class="btn btn-default btn-lg " id="btnMeta" pid="0"><span class="glyphicon glyphicon-download"></span> Download Meta</button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#UploadFileModal"><span class="glyphicon glyphicon-cloud-upload"></span> Upload</button>
+                <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#NewFolderModal"><span class="glyphicon glyphicon-plus"></span> New Folder</button>
+  
+            </div>
+            <button type="button" class="btn btn-danger btn-lg " style="display:none" id="btnDelete" pid="0"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="NewFolderModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btnCloseModal" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Create New Folder</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>
+                        Enter Folder Name
+                    </label> <input type="text" class="form-control " id="txtFolderName" />
+                </div>
+                <div>
+                    <h5 id="txtError1"></h5>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="btnCreate">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="UploadFileModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btnCloseModal1" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upload a File</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="file" class="form-control " id="file1" />
+                </div>
+                <div>
+                    <h5 id="txtError"></h5>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="btnUpload">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    
+    <div class="col-lg-12 pathDiv" style="padding-bottom:5px;font-size:20px; border-bottom:1px solid lightgrey">
+        <span class="folderName" id="0">
+           Home 
+        </span>
+        
+    </div>
+</div>
+<div class="main-body" style="padding-top:15px">
+    <div class="row">
+        <div class="col-lg-12" id="folderContainer">
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12" id="fileContainer">
+
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,42 @@
+﻿.foIconNameDiv:hover{
+    background:#E8F0FE;
+    color:#1E6AD3;
+}
+.fiHov:hover{
+    background:#E8F0FE;
+    color:#1E6AD3;
+    cursor:pointer;
+}
+.selected{
+    background:#E8F0FE;
+    color:#1E6AD3;
+}
+.folderName{
+    cursor:pointer;
+}
+.fiDiv{
+    margin-bottom:20px;
+}
+.foDiv{
+    margin-bottom:20px;
+}
+.fileIconDiv{
+    font-size:70px;
+    border:1px solid lightgrey;
+    border-radius:5px 5px 0 0;
+    padding:10px;
+}
+.fileNameDiv{
+    
+    border:1px solid lightgrey;
+    border-radius:0 0 5px 5px;
+    padding:10px;
+    font-size:14px;
+}
+.foIconNameDiv{
+    border:1px solid lightgrey;
+    border-radius:5px;
+    padding:10px;
+    overflow:auto;
+    font-size:17px;
+}

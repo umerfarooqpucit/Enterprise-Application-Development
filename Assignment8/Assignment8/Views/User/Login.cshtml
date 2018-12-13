@@ -1,0 +1,72 @@
+﻿
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts {
+
+    <script>
+        $(function () {
+            debugger;
+            $("#btnLogin").click(function () {
+
+                var login = $("#txtLogin").val();
+                var pass = $("#txtPassword").val();
+
+                var d = { "login": login, "password": pass };
+
+                var settings = {
+                    type: "POST",
+                    dataType: "json",
+                    url: "/User/ValidateUser",
+                    data: d,
+                    success: function (resp) {
+                        if (resp.valid == true) {
+                            debugger;
+                            location.href = resp.urlToRedirect;
+                        }
+                        else {
+                            alert("Invalid Login/Password");
+                        }
+                    },
+                    error: function (e) {
+                        alert("error");
+                    }
+                };
+
+                $.ajax(settings);
+
+                return false;
+            });
+        });
+    </script>
+
+}
+
+
+
+
+<div class="col-lg-4 col-lg-offset-1">
+    <h2>Login</h2>
+    <div class="form-group">
+        <label>
+            Login:
+        </label> <input type="text" required class="form-control " id="txtLogin" value="@ViewBag.Login" /> <br />
+    </div>
+    <div class="form-group">
+        <label>
+            Password:
+        </label>
+        <input type="password" required id="txtPassword" class="form-control " /> <br />
+    </div>
+
+    <input type="button" class="btn btn-md btn-default" value="Login" id="btnLogin" />
+    @*<input type="submit" class="btn btn-md btn-default" value="Sign Up" id="btnSignUp" />*@
+    @{
+        if (ViewBag.MSG != null)
+        { <span style="color:red;" class="alert alert-danger">@ViewBag.MSG</span>}
+    }
+
+</div>
+

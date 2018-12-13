@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+
+    <link href="~/Content/StyleSheet1.css" rel="stylesheet" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @RenderSection("scripts", required: false)
+
+    
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("My Drive", "Index", "Home", null, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Dashboard", "Home")</li>
+                    <li>@Html.ActionLink("About", "About", "Home")</li>
+                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                </ul>
+                @{
+                    if (Session["user"] != null)
+                    {
+                        <ul class="nav navbar-form navbar-left" >
+                            <li class="form-group">
+                                <input type="text" class="form-control" placeholder="Search for any File" id="txtSearch" />
+                                
+                            </li>
+                        </ul>
+                        <div class="nav navbar-btn navbar-left" >
+                            <button type="button" class="btn btn-default" id="btnSearch"><span class="glyphicon glyphicon-search"> </span></button>
+                        </div>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href='@Url.Content("~/User/Logout")'>Log off</a></li>
+                        </ul>
+                    }
+                }
+                
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    
+</body>
+</html>
