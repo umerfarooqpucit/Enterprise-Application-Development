@@ -1,0 +1,12 @@
+﻿@{
+    Layout = "~/Views/Shared/_Shared.cshtml";
+    ViewBag.title = "Home"; 
+}
+
+
+<div>
+    <a class="btn btn-primary btn-lg " href="@Url.Content("/Home/NewUser")">New User</a>
+    <a class="btn btn-primary btn-lg " href="@Url.Content("/Home/ExistingUser")">Existing User</a>
+    <a class="btn btn-primary btn-lg " href="@Url.Content("/Home/Admin")">Admin</a>
+</div>
+
