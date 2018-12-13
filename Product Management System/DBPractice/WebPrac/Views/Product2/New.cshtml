@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "Add New Product";
+    Layout = "~/Views/Shared/_MyProductLayout.cshtml";
+}
+
+@section scripts {
+
+    <script src="~/Scripts/handlebars.js"></script>
+    <script src="~/Scripts/myapp.js"></script>
+
+    <script>
+
+        $(function () {
+            MyApp.Main();
+        });
+
+
+    </script>
+}
+<div class="col-lg-5 col-lg-offset-1">
+
+    <h2>Product Management</h2>
+
+    <img src="" style="width:100px;height:100px;display:none" id="prodimg" /> <br />
+    <input type="hidden" name="ProductID" id="txtProductID" value="0" />
+    <input type="hidden" name="PictureName" id="txtPictureName" />
+    <div class="form-horizontal">
+        <div class="form-group">
+            Name:<input class="form-control" required type="text" name="Name" id="txtName" /> <br />
+        </div>
+        <div class="form-group">
+            Price: <input type="number" required min="0" class="form-control" name="Price" id="txtPrice" /> <br />
+        </div>
+
+        Image: <input type="file" name="Image" id="myfile" /> <br />
+        <input class="btn btn-md btn-default"   type="submit" value="Save" id="btnSave" />
+        <input class="btn btn-md btn-default" type="button" id="btnClear" value="Clear" />
+    </div>
+    <h2>Products</h2>
+    @*<table>
+            <thead>
+                <tr>
+                    <td>Name</td>
+                    <td>Price</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody id="tblBody"></tbody>
+        </table>*@
+
+    <div id="tblBody">
+    </div>
+    <div id="emailpopup" class="modalpopup">
+        <span id="popupname"></span>
+        <button class="btn btn-md btn-default" id="btnSend">Email</button>
+        <button class="btn btn-md btn-default" id="btnClose">Close</button>
+    </div>
+
+    @*<script id="listtemplate" type="text/x-handlebars-template">
+            {{#each data}}
+            <tr pid="{{ProductID}}">
+                <td>{{Name}}</td>
+                <td>{{Price}}</td>
+                <td><img src="/UploadedFiles/{{PictureName}}" style="width:100px;height:100px;" /></td>
+                @if (WebPrac.Security.SessionManager.User.IsAdmin)
+                {
+                    <td><a href="#" class="editprod">Edit</a></td>
+                    <td><a href="#" class="deleteprod">Delete</a></td>
+                    <td><a href="#" class="emailprod">Email</a></td>
+                }
+            </tr>
+            {{/each}}
+        </script>*@
+    <script id="listtemplate" type="text/x-handlebars-template">
+        {{#each data}}
+        <div class="prodbox" pid="{{ProductID}}">
+            <div style="float:left">
+                <img src="/UploadedFiles/{{PictureName}}" style="width:100px;height:100px;" />
+            </div>
+            <div style="float:left">
+                Product Id: {{ProductID}} <br />
+                Name: {{Name}} <br />
+                Price: {{Price}} <br />
+                Created On {{CreatedOn}} <b>By</b> {{CreatedByName}}
+            </div>
+            <div style="clear:both">
+                @if (WebPrac.Security.SessionManager.User.IsAdmin)
+                {
+                    <div style="padding:3px">
+                        <a class="btn btn-sm btn-default btn-group-sm" href="/Product/Edit/{{ProductID}}">Edit</a>
+                        <a class="btn btn-sm btn-danger btn-group-sm" onclick="return confirm('Are you sure?')" href="/Product/Delete/{{ProductID}}">Delete</a>
+                        
+
+                    </div>
+                    
+                }
+            </div>
+            <div class="commentarea">
+                <textarea class="txtComment" rows="1" cols="50"></textarea>
+                <button id="txtComment" value="Add" class="addcomment btn btn-md btn-default">Add</button>
+            </div>
+            <br />
+            <div class="comments">
+                {{#each Comments}}
+                <div class="comment">
+                    <div class="picture">
+                        <img src='/UploadedFiles/{{PictureName}}' />
+                    </div>
+                    <div>
+                        <a target="_blank" href = '../User/UProfile/{{UserID}}' class="name">{{UserName}}</a>
+                        <span class="comment-text"> {{CommentText}}</span> <br />
+                        <span class="comment-text commenton">{{CommentOn}}</span>
+                    </div>
+                </div>
+                <br />
+                <div style="clear:both"></div>
+                {{/each}}
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script id="commenttemplate" type="text/x-handlebars-template">
+        <div class="comment">
+            <div class="picture">
+                <img src='/UploadedFiles/{{PictureName}}' />
+            </div>
+            <div>
+                <span class="name">{{UserName}}</span>
+                <span class="comment-text"> {{CommentText}}</span> <br />
+                <span class="comment-text commenton">{{CommentOn}}</span>
+            </div>
+        </div>
+        <br />
+        <div style="clear:both"></div>
+    </script>
+</div>

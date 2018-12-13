@@ -1,12 +1,3 @@
-bin/
-obj/
-packages/
-/packages
-/user management system/bin
-/user management system/obj
-/user management system/Images
-packages/
-
 /DBPractice/packages
 /DBPractice/DBPractice/bin
 /DBPractice/PMS.BAL/bin
